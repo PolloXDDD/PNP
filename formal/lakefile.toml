@@ -1,0 +1,6 @@
+name = "pnp"
+version = "0.1.0"
+defaultTargets = ["PNP"]
+
+[[lean_lib]]
+name = "PNP"

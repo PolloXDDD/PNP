@@ -27,3 +27,4 @@ theorem bool_cases_exists (p : Bool → Prop) :
     | inr ht => exact ⟨true, ht⟩
 
 end PNP
+

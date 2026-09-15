@@ -36,3 +36,4 @@ notebook = {'nbformat': 4, 'nbformat_minor': 5,
  'cells': [{'cell_type': 'code', 'id': 'exact-elimination', 'metadata': {},
             'execution_count': None, 'outputs': [], 'source': cell.splitlines(True)}]}
 (ROOT / 'colab/PNP_exact_elimination.ipynb').write_text(json.dumps(notebook, indent=1) + '\n')
+

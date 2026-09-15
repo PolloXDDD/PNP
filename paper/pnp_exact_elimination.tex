@@ -1,0 +1,442 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype,parskip}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,longtable,array}
+\usepackage{algorithm,algpseudocode}
+\usepackage{xcolor,listings}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!55!black,citecolor=blue!55!black]{hyperref}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newcommand{\B}{\{0,1\}}
+\newcommand{\scope}{\operatorname{scope}}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,
+ keepspaces=true,frame=single,rulecolor=\color{black!20},showstringspaces=false}
+\title{P versus NP through Exact Boolean Elimination\\
+\large Executable Solvers, Modular Lean 4 Verification,\\
+and the Polynomial Representation Problem}
+\author{Kaoru Aguilera Katayama\\
+\small Research and implementation developed with Codex}
+\date{September 15, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+We investigate a constructive route to a polynomial-time satisfiability
+algorithm: combine constraints sharing a variable, eliminate that variable
+exactly, and recover a model in reverse order. The underlying Boolean
+identity is exact, but its dense implementation can require exponentially
+many table entries. We supply Python and C++17 implementations, a
+self-contained one-cell Google Colab interface, reproducible experiments,
+and a modular Lean 4 development of semantic correctness.
+We examine alternative representations using auxiliary-free CNF, expanded
+algebraic normal form, affine systems and their unions, decision diagrams,
+and marginal summaries. Explicit families establish several
+representation-specific obstructions. The solver returns an exact decision
+when it completes and UNKNOWN on configured resource exhaustion.
+This work does not establish P=NP: a uniform polynomial representation,
+construction, and evaluation bound for arbitrary inputs remains unproved.
+\end{abstract}
+\tableofcontents
+
+\section{Objective and organizational method}
+The objective is an exact deterministic SAT algorithm with a low polynomial
+bound in encoded input length, preferably linear or quadratic. Correctness
+and polynomial running time are distinct requirements. The present
+development establishes the elimination semantics, implements its dense
+representation, and tests possible ways to control its growth.
+
+The organizational reference is OpenAI's public Navier--Stokes and Euler
+release \cite{openai,openai-repo}. Its repository separates supporting
+definitions, constructions, final statements, build configuration, and
+formalization metadata. We adapt this modular proof organization and the
+separation of mathematical exploration from formal verification.
+The resulting mathematical scope is different.
+The core method belongs to the established bucket-elimination framework
+\cite{dechter}; the Boolean elimination identity is not claimed as a new
+general SAT algorithm.
+
+Independent work streams developed the Lean semantics, executable
+implementation, finite tests, and candidate compression mechanisms.
+An initial executable checkpoint was published before the exposition.
+Every result below is classified either as a proved mathematical identity,
+an implementation property tested empirically, or an unresolved target.
+No unproved resource bound is supplied as an axiom to obtain P=NP.
+
+\section{Input and factor semantics}
+A literal is a variable $x_i$ or its negation; a clause is a finite
+disjunction of literals. A CNF $F=C_1\land\cdots\land C_m$ is satisfied
+by an assignment precisely when each clause has a true literal.
+The empty clause is false; the empty conjunction is true.
+Duplicate literals can be removed, and a clause containing both signs
+of one variable can be discarded.
+
+Let $L$ count literal occurrences, $N$ denote encoded input length,
+and $n$ count active variables. The DIMACS header's declared range
+$n_{\mathrm{hdr}}$ is a separate quantity: a short header can name a very
+large range. Both programs enforce a configurable range cap and output
+complete models, so their total cost includes the model-output length.
+
+A factor is a Boolean function $f:\B^V\to\B$ together with a recorded
+scope $S\subseteq V$. Validity of the scope means that assignments agreeing
+on $S$ give the same value of $f$. Scopes may be conservative: the programs
+retain the recorded scope even when a projected table happens to be constant.
+For a sorted scope $(v_0,\ldots,v_{k-1})$ the table index is
+$\sum_{j=0}^{k-1}a(v_j)2^j$.
+Thus the first variable occupies the least significant bit.
+A normalized non-tautological clause has one falsifying row on its scope;
+its table is initialized to true and that row is cleared.
+
+\section{Exact elimination and scope preservation}
+Fix a variable $x$. Let $\mathcal B_x$ contain every factor whose recorded
+scope includes $x$, and let the other factors form $\mathcal H_x$.
+Write $G(x,y)=\bigwedge_{f\in\mathcal B_x}f(x,y)$ and
+$H(y)=\bigwedge_{h\in\mathcal H_x}h(y)$.
+Scope validity ensures that $H$ is independent of $x$.
+
+\begin{theorem}[One-step equivalence]\label{thm:step}
+The replacement of $\mathcal B_x$ by $R(y)=G(0,y)\lor G(1,y)$
+preserves satisfiability. Pointwise,
+\begin{equation}\label{eq:central}
+\exists x\in\B\,[H(y)\land G(x,y)]
+\quad\Longleftrightarrow\quad
+H(y)\land\bigl(G(0,y)\lor G(1,y)\bigr).
+\end{equation}
+\end{theorem}
+\begin{proof}
+A witness on the left makes $H$ and its corresponding cofactor of $G$
+true. Conversely, a true cofactor on the right supplies a Boolean value
+of $x$. The factor $H$ remains true because it does not depend on $x$.
+\end{proof}
+Conjunction must precede projection in the bucket. Separate existential
+projections need not share a witness: $\exists x\,x$ and
+$\exists x\,\neg x$ are both true, but
+$\exists x\,(x\land\neg x)$ is false.
+
+\begin{lemma}[Locality]\label{lem:locality}
+If $G$ depends only on $S$, its projection depends only on $S\setminus\{x\}$.
+\end{lemma}
+\begin{proof}
+Extend two assignments agreeing on $S\setminus\{x\}$ by the same value
+of $x$. They then agree on $S$, so both corresponding cofactors agree.
+Their disjunctions therefore agree.
+\end{proof}
+
+\begin{theorem}[Repeated elimination]\label{thm:repeat}
+After any sequence of distinct variable eliminations, the current
+conjunction equals the existential projection of the original formula
+onto the uneliminated coordinates. After all active variables are
+eliminated, the resulting constant is true exactly when $F$ is satisfiable.
+\end{theorem}
+\begin{proof}
+Induct on the elimination sequence. Theorem~\ref{thm:step} gives each
+induction step, while Lemma~\ref{lem:locality} validates the updated scope.
+At termination the remaining factors have empty scope and are constant.
+\end{proof}
+
+\section{Constructive model recovery}
+For every true projected row, store $W(y)=0$ if $G(0,y)=1$ and otherwise
+$W(y)=1$. Values stored on false rows do not matter, because correct
+reconstruction never visits a false projected row.
+
+\begin{theorem}[Reverse witnesses]\label{thm:recover}
+If elimination completes with a true constant, traversing saved witness
+records in reverse and setting $x=W(y)$ yields a model of the original CNF.
+\end{theorem}
+\begin{proof}
+Maintain that the assignment satisfies the state after the step being
+reversed. Its separator variables are already assigned. Since its projected
+factor is true on that row, the recorded bit makes every former bucket
+factor true. All other factors omit $x$ and are unchanged. Reverse induction
+restores every original constraint. Variables absent from retained clauses
+may be assigned false.
+\end{proof}
+Both executables independently evaluate the recovered model against
+all original clauses before returning SAT. This includes discarded
+tautological clauses. UNSAT follows from an exact zero projection, rather
+than from failed search under a resource limit.
+The executables do not export a separate DRAT or LRAT refutation certificate.
+
+\section{Algorithm and resource semantics}
+\begin{algorithm}[ht]
+\caption{Dense bucket elimination with reverse witness tables}
+\begin{algorithmic}[1]
+\Require Valid CNF, deterministic ordering policy, resource budgets
+\State Normalize clauses; return UNSAT if an empty clause occurs
+\State Construct exact clause tables and variable-to-factor incidence sets
+\State $\mathcal W\gets[\,]$
+\While{an active variable remains}
+ \State Select a variable $x$
+ \State $\mathcal B\gets\{f:x\in\scope(f)\}$
+ \State $S\gets\bigcup_{f\in\mathcal B}\scope(f)$
+ \State Check width, table-cell, and elapsed-time limits
+ \ForAll{$y\in\B^{S\setminus\{x\}}$}
+  \State $g_0\gets\bigwedge_{f\in\mathcal B}f(0,y)$
+  \State $g_1\gets\bigwedge_{f\in\mathcal B}f(1,y)$
+  \State $R[y]\gets g_0\lor g_1$
+  \State Save a feasible bit $W[y]$, preferring zero
+ \EndFor
+ \If{every entry of $R$ is false}
+  \State \Return UNSAT
+ \EndIf
+ \State Append $(x,S\setminus\{x\},W)$ to $\mathcal W$
+ \State Replace $\mathcal B$ by $R$ and update incidence sets
+\EndWhile
+\State Recover assignment $a$ by reversing $\mathcal W$
+\State Check every original clause under $a$
+\State \Return SAT and $a$
+\end{algorithmic}
+\end{algorithm}
+
+A failed resource check returns UNKNOWN and makes no satisfiability claim.
+Elapsed time is checked cooperatively during solving, so it is not a hard
+operating-system deadline. Parsing and writing lie outside this budget.
+The cell budget counts cumulative byte-table entries, including witnesses;
+it is not a measurement of peak process memory or metadata overhead.
+Allocation failure also produces UNKNOWN.
+
+The default order is ascending active variable identifier.
+The optional min-degree policy minimizes current joined-scope size,
+breaking ties by identifier. Its repeated candidate scans can be costly.
+Neither policy is assumed to find an optimal elimination order.
+
+\section{Complexity and a decisive dense-width obstruction}
+Let $b_i$ be the union-scope size at step $i$, including the pivot.
+Let $b$ be the maximum of the initial clause-scope sizes and all $b_i$.
+The separator has $b_i-1$ variables and $2^{b_i-1}$ rows.
+The reported \texttt{max\_width} includes the pivot, unlike the common
+induced-width convention which counts its later neighbors.
+
+Set $q_i=\sum_{f\in\mathcal B_i}|\scope(f)|$.
+The table loop uses $O(q_i2^{b_i-1})$ elementary indexing operations.
+Every original or generated factor is consumed at most once, and at most
+$m+n$ factors are generated. Thus $\sum_iq_i\leq b(m+n)$.
+Table construction, projection, and witness storage have the bounds
+\begin{equation}\label{eq:cost}
+T_{\mathrm{tables}}=O((m+n)b2^b),\qquad
+S_{\mathrm{tables}}=O((m+n)2^b).
+\end{equation}
+These are table-model bounds, not formally extracted executable costs.
+Sorting, scope maintenance, dictionary operations, order selection,
+integer encoding, parsing, and output add costs.
+Ordered maps add logarithmic factors in C++; Python dictionary costs are
+not assumed to be a universal constant-time worst-case theorem.
+An appropriate conservative description at bit level is
+$\operatorname{poly}(N)2^b$, plus output cost.
+An exponentially long integer or vector is never charged as a unit-size value.
+
+With a supplied constant-width order, the table-processing component is
+linear in $m+n$; logarithmic width would make that component polynomial.
+This does not establish either width guarantee on arbitrary CNF.
+
+\begin{proposition}[Polynomial input, exponential dense table]\label{prop:clique}
+For $r\geq2$, the formula
+$F_r=\bigwedge_{i<j}(x_i\lor x_j)$ has $\binom r2$ clauses, yet every
+elimination order gives first-step union size $r$ in this representation.
+\end{proposition}
+\begin{proof}
+The first selected variable occurs together with each other variable.
+Its bucket union therefore contains all $r$ variables, and its separator
+table has $2^{r-1}$ rows.
+\end{proof}
+Setting all variables true is a model. Hence this is a lower bound for
+the dense representation, not for all SAT algorithms and not a proof
+of P$\ne$NP. It directly rules out a universal logarithmic-width claim
+for this implementation.
+
+\section{Candidate compression mechanisms}
+\subsection{Auxiliary-free CNF and parity}
+\begin{proposition}\label{prop:parity}
+A CNF with $4(r-1)+1$ clauses and $r-1$ auxiliaries can project to even
+parity on $r$ visible variables. Any equivalent CNF over only the visible
+variables needs at least $2^{r-1}$ clauses.
+\end{proposition}
+\begin{proof}
+Encode a chain of XOR gates using four clauses per gate, and constrain
+the final output to zero. Its existential projection is even parity.
+Every non-tautological implicate of even parity must mention all visible
+variables: otherwise falsify its mentioned literals and adjust an omitted
+bit to obtain an even assignment, contradicting implication.
+A full-width clause forbids just one assignment. There are $2^{r-1}$
+odd assignments to forbid. The canonical clauses attain the bound.
+\end{proof}
+Retaining auxiliaries can keep a short existential representation.
+Doing so without an efficient evaluator does not solve the general
+decision problem.
+
+\subsection{Expanded algebraic normal form}
+Over the Boolean quotient ring of $\mathbb F_2$, write
+$f(x,y)=a(y)+xb(y)$. Boolean OR is $u+v+uv$, so the cofactors $a$ and
+$a+b$ give the exact formula
+\begin{equation}\label{eq:anf}
+\exists x\,f(x,y)=a(y)+b(y)+a(y)b(y).
+\end{equation}
+Here $a^2=a$. Replacing existence by addition modulo two would be
+incorrect: two satisfying cofactors give $1+1=0$.
+
+Correct algebra does not guarantee small expanded expressions.
+The CNF $\bigwedge_{i=1}^r(x_i\lor y_i)$ expands to
+$\prod_i(x_i+y_i+x_iy_i)$, containing $3^r$ distinct monomials.
+The variable pairs are disjoint, so no products cancel.
+This easy CNF isolates expansion cost from decision difficulty.
+
+\subsection{Affine systems and unions of affine pieces}
+Affine systems over $\mathbb F_2$ are closed under conjunction and
+existential projection; Gaussian elimination and back-substitution
+provide exact algorithms. OR3 is not affine: its relation has seven
+points, whereas a nonempty affine space has power-of-two cardinality.
+Also, $100$, $010$, and $110$ satisfy OR3 but their triple XOR is $000$.
+
+One exact extension splits OR3 into disjoint cases
+$x=1$, or $x=0,y=1$, or $x=0,y=0,z=1$.
+Distributing conjunction across $t$ such clauses gives at most $3^t$
+affine pieces, each solvable in polynomial time.
+The resulting bound is $O(3^t\operatorname{poly}(N))$.
+
+\begin{proposition}[Affine-cover obstruction]\label{prop:affine}
+Let $R_t$ be the conjunction of $t$ positive OR3 clauses on disjoint
+variable blocks. Any exact cover of its models by affine subspaces
+requires at least $\lceil(7/4)^t\rceil$ pieces.
+\end{proposition}
+\begin{proof}
+The relation has $7^t$ models. The projection of an affine subspace
+$A\subseteq R_t$ onto any three-bit block is affine and excludes $000$.
+It cannot have dimension three, and therefore has at most four points.
+Since $A$ lies inside the product of its block projections,
+$|A|\leq4^t$. A union of $k$ such pieces has at most $k4^t$ points,
+even if pieces overlap. Covering $7^t$ points requires $k4^t\geq7^t$.
+\end{proof}
+This obstructs globally flattening the solution set into a small union
+of affine spaces. It does not obstruct retaining a factored product
+representation: the input itself is small and obviously satisfiable.
+
+\subsection{Decision diagrams and two distinct orders}
+Decision diagrams share repeated cofactors \cite{bryant,darwiche}.
+For $\bigwedge_i(x_i\lor y_i)$, assigning all $x_i$ first leaves $2^r$
+distinct residual functions; interleaving $x_i,y_i$ gives a small diagram.
+Thus size and compilation order must both be controlled.
+
+Mengel \cite{mengel} gives a concrete positive result: different BDD and
+elimination orders make standard pigeonhole formulas efficient.
+The paper also establishes exponential behavior for particular
+restrictions under the same orders, and for using either order in both
+roles. This supports experimenting with two independently selected orders;
+it does not supply a universal polynomial SAT bound.
+
+\subsection{Why counts and proper marginals lose shared witnesses}
+Let $E$ and $O$ be the even- and odd-parity relations on $r\geq2$ bits.
+Each has $2^{r-1}$ models and projects to the full Boolean cube on
+every proper coordinate subset: an omitted bit can enforce either parity.
+Nevertheless, $E\cap O=\varnothing$, whereas $E\cap E=E$.
+Consequently all proper projections plus the exact model count fail to
+determine satisfiability of a conjunction. A richer summary recording the
+parity equation distinguishes this example but needs its own general
+closure and resource proof.
+
+\section{The outstanding universal theorem}
+A successful proof through this route must construct, uniformly for
+every input, polynomial-size initial and intermediate representations;
+perform every required conjunction and projection in polynomial time;
+find its operation schedule efficiently; and evaluate the final constant
+in polynomial time. For model search, witness information and recovery
+must obey corresponding bounds.
+All bounds must be polynomial in the original encoded input length,
+not merely in the sizes of potentially exponential intermediate operands.
+The work here does not prove this theorem.
+
+\section{Lean verification and its scope}
+\IfFileExists{formal_coverage.tex}{\input{formal_coverage.tex}}{}
+The development proves theorems about explicit Lean semantics.
+It does not establish a compiler refinement from the Python bytearray
+and C++ vector implementations, their DIMACS parsers, memory behavior,
+or measured costs to those semantics. Differential tests address the
+implementation boundary empirically. No theorem asserting general
+polynomial-time SAT or P=NP is exported.
+The axiom audit distinguishes ordinary Lean logical dependencies from
+unproved problem-specific assumptions.
+
+\section{Empirical evaluation}
+\IfFileExists{benchmarks_table.tex}{\input{benchmarks_table.tex}}{}
+The benchmark inputs are generated with recorded seeds and construction
+parameters. Small instances are independently checked by exhaustive
+enumeration. Structured cases exercise small-width scaling, while random
+and dense-width cases expose resource growth.
+These experiments are not an industrial benchmark competition.
+Finite measurements do not prove an asymptotic polynomial bound.
+Code hashes, hardware information, raw samples, status, width, and table
+cell counts accompany the timing report.
+
+The independent mathematical audit checks the small Boolean elimination
+truth domain, the algebraic projection formula, parity projections and
+implicates, and affine-cover examples. Symbolic growth estimates are
+identified as such; they are not presented as actual allocations.
+
+\section{Reproduction and the one-cell interface}
+Python uses only its standard library:
+\begin{lstlisting}[language=bash]
+python3 src/sat_eliminate.py input.cnf --output solution.txt
+\end{lstlisting}
+C++ uses the standard library and a C++17 compiler:
+\begin{lstlisting}[language=bash]
+g++ -std=c++17 -O3 -DNDEBUG src/sat_eliminate.cpp -o sat_eliminate
+./sat_eliminate input.cnf --output solution.txt
+\end{lstlisting}
+Both accept \texttt{--max-width}, \texttt{--max-cells},
+\texttt{--timeout}, \texttt{--max-vars}, and an ascending or min-degree
+order. Exit values are 10 for SAT, 20 for UNSAT, 0 for UNKNOWN, and 2 for
+input or invocation errors. The SAT-competition values 10 and 20 are
+logical outcomes, despite being nonzero process exit codes.
+
+The notebook \texttt{colab/PNP\_exact\_elimination.ipynb} contains exactly
+one executable cell. It embeds the Python solver, requests a Colab upload,
+and downloads one \texttt{.solution.txt} for each uploaded CNF.
+The companion \texttt{one\_cell.py} is the pasteable source.
+It requires no external solver, repository download, or package install.
+The cell exposes editable resource-limit constants.
+
+SAT reports an assignment on \texttt{v} lines terminated by zero.
+UNSAT has no model. UNKNOWN records its resource reason.
+The parser checks header counts, ASCII decimal tokens, variable ranges,
+and clause terminators; multiline clauses and multiple clauses per line
+are supported. A line beginning with percent ends the DIMACS stream,
+allowing the conventional trailing zero. Malformed input is an error,
+not an UNSAT result.
+
+\section{Outcome}
+The exact semantic reduction and constructive witnesses are established.
+The implementation is usable on formulas with small elimination scopes,
+while explicit families force exponential dense tables.
+Several alternative representations also have specific provable
+limitations. The repository provides reproducible code, experiments,
+and formal semantic results. A definitive proof of P=NP and a general
+linear or quadratic SAT solver have not been obtained.
+
+\begin{thebibliography}{9}
+\bibitem{dechter}
+R. Dechter. \emph{Bucket Elimination: A Unifying Framework for Reasoning}.
+Artificial Intelligence 113(1--2), 41--85 (1999).
+\url{https://doi.org/10.1016/S0004-3702(99)00059-4}.
+\bibitem{bryant}
+R. E. Bryant. \emph{Graph-Based Algorithms for Boolean Function Manipulation}.
+IEEE Transactions on Computers C-35(8), 677--691 (1986).
+\url{https://www.cs.cmu.edu/~bryant/pubdir/ieeetc86.pdf}.
+\bibitem{darwiche}
+A. Darwiche and P. Marquis. \emph{A Knowledge Compilation Map}.
+Journal of Artificial Intelligence Research 17, 229--264 (2002).
+\url{https://arxiv.org/abs/1106.1819}.
+\bibitem{mengel}
+S. Mengel. \emph{Bounds on BDD-Based Bucket Elimination}.
+SAT 2023, LIPIcs 271, 16:1--16:11 (2023).
+\url{https://doi.org/10.4230/LIPIcs.SAT.2023.16}.
+\bibitem{openai}
+OpenAI. \emph{On the Navier--Stokes Millennium Prize Problem}.
+September 8, 2026.
+\url{https://openai.com/index/navier-stokes-solution/}.
+\bibitem{openai-repo}
+OpenAI. \emph{NavierStokesAndEuler: Lean 4 formalizations}.
+Repository inspected September 14, 2026.
+\url{https://github.com/openai/NavierStokesAndEuler}.
+\end{thebibliography}
+\end{document}

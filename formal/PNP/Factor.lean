@@ -73,3 +73,4 @@ theorem truth_satisfiable : Satisfiable truth := ⟨fun _ => false, rfl⟩
 theorem falsity_unsatisfiable : Unsatisfiable falsity := by intro a; rfl
 
 end PNP
+

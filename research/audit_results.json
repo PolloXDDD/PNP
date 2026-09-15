@@ -1,0 +1,569 @@
+{
+  "status": "PASS",
+  "python": "3.12.14",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "scope": "Finite independent implementation audits; not a proof of P=NP or universal polynomial complexity.",
+  "local_identity": {
+    "bucket_identity_comparisons": 16384,
+    "all_three_variable_functions": 256,
+    "reconstructed_models": 255
+  },
+  "parity": {
+    "xor_chain_projection": [
+      {
+        "n": 2,
+        "clauses": 5,
+        "models": 2,
+        "minimum_auxiliary_free_cnf_clauses": 2
+      },
+      {
+        "n": 3,
+        "clauses": 9,
+        "models": 4,
+        "minimum_auxiliary_free_cnf_clauses": 4
+      },
+      {
+        "n": 4,
+        "clauses": 13,
+        "models": 8,
+        "minimum_auxiliary_free_cnf_clauses": 8
+      },
+      {
+        "n": 5,
+        "clauses": 17,
+        "models": 16,
+        "minimum_auxiliary_free_cnf_clauses": 16
+      },
+      {
+        "n": 6,
+        "clauses": 21,
+        "models": 32,
+        "minimum_auxiliary_free_cnf_clauses": 32
+      }
+    ],
+    "proper_marginals": [
+      {
+        "n": 2,
+        "proper_subsets_checked": 3
+      },
+      {
+        "n": 3,
+        "proper_subsets_checked": 7
+      },
+      {
+        "n": 4,
+        "proper_subsets_checked": 15
+      },
+      {
+        "n": 5,
+        "proper_subsets_checked": 31
+      },
+      {
+        "n": 6,
+        "proper_subsets_checked": 63
+      },
+      {
+        "n": 7,
+        "proper_subsets_checked": 127
+      },
+      {
+        "n": 8,
+        "proper_subsets_checked": 255
+      }
+    ],
+    "exhaustive_implicate_check": [
+      {
+        "n": 1,
+        "all_non_tautological_implicates": 1
+      },
+      {
+        "n": 2,
+        "all_non_tautological_implicates": 2
+      },
+      {
+        "n": 3,
+        "all_non_tautological_implicates": 4
+      },
+      {
+        "n": 4,
+        "all_non_tautological_implicates": 8
+      },
+      {
+        "n": 5,
+        "all_non_tautological_implicates": 16
+      }
+    ]
+  },
+  "anf": {
+    "projection_comparisons": 6144,
+    "disjoint_or_expansion": [
+      {
+        "disjoint_binary_clauses": 1,
+        "expanded_monomials": 3
+      },
+      {
+        "disjoint_binary_clauses": 2,
+        "expanded_monomials": 9
+      },
+      {
+        "disjoint_binary_clauses": 3,
+        "expanded_monomials": 27
+      },
+      {
+        "disjoint_binary_clauses": 4,
+        "expanded_monomials": 81
+      },
+      {
+        "disjoint_binary_clauses": 5,
+        "expanded_monomials": 243
+      },
+      {
+        "disjoint_binary_clauses": 6,
+        "expanded_monomials": 729
+      },
+      {
+        "disjoint_binary_clauses": 7,
+        "expanded_monomials": 2187
+      },
+      {
+        "disjoint_binary_clauses": 8,
+        "expanded_monomials": 6561
+      },
+      {
+        "disjoint_binary_clauses": 9,
+        "expanded_monomials": 19683
+      }
+    ]
+  },
+  "affine_union": {
+    "all_nonempty_affine_spaces_gf2_3": 51,
+    "maximum_affine_subset_or3": 4,
+    "random_full_relation_audits": 640,
+    "disjoint_or3_growth": [
+      {
+        "disjoint_or3_clauses": 1,
+        "variables": 3,
+        "explicit_components": 3,
+        "models": 7,
+        "any_affine_cover_lower_bound": 2,
+        "gaussian_updates": 6,
+        "seconds": 1.0585999916656874e-05
+      },
+      {
+        "disjoint_or3_clauses": 2,
+        "variables": 6,
+        "explicit_components": 9,
+        "models": 49,
+        "any_affine_cover_lower_bound": 4,
+        "gaussian_updates": 24,
+        "seconds": 3.447199992479e-05
+      },
+      {
+        "disjoint_or3_clauses": 3,
+        "variables": 9,
+        "explicit_components": 27,
+        "models": 343,
+        "any_affine_cover_lower_bound": 6,
+        "gaussian_updates": 78,
+        "seconds": 0.00011434199996074312
+      },
+      {
+        "disjoint_or3_clauses": 4,
+        "variables": 12,
+        "explicit_components": 81,
+        "models": 2401,
+        "any_affine_cover_lower_bound": 10,
+        "gaussian_updates": 240,
+        "seconds": 0.0007531239999707395
+      },
+      {
+        "disjoint_or3_clauses": 5,
+        "variables": 15,
+        "explicit_components": 243,
+        "models": 16807,
+        "any_affine_cover_lower_bound": 17,
+        "gaussian_updates": 726,
+        "seconds": 0.0016699639999160354
+      },
+      {
+        "disjoint_or3_clauses": 6,
+        "variables": 18,
+        "explicit_components": 729,
+        "models": 117649,
+        "any_affine_cover_lower_bound": 29,
+        "gaussian_updates": 2184,
+        "seconds": 0.006108734999997978
+      },
+      {
+        "disjoint_or3_clauses": 7,
+        "variables": 21,
+        "explicit_components": 2187,
+        "models": 823543,
+        "any_affine_cover_lower_bound": 51,
+        "gaussian_updates": 6558,
+        "seconds": 0.020013686000083908
+      },
+      {
+        "disjoint_or3_clauses": 8,
+        "variables": 24,
+        "explicit_components": 6561,
+        "models": 5764801,
+        "any_affine_cover_lower_bound": 88,
+        "gaussian_updates": 19680,
+        "seconds": 0.07576587699998072
+      }
+    ],
+    "capped_status": "UNKNOWN",
+    "odd_parity_background_example": {
+      "blocks": 10,
+      "components": 59049,
+      "models": 1048576
+    }
+  },
+  "bdd": {
+    "disjoint_binary_or_order_sizes": [
+      {
+        "clauses": 1,
+        "interleaved": {
+          "reachable_decision_nodes": 2,
+          "interned_nodes_including_terminals": 5
+        },
+        "blocked": {
+          "reachable_decision_nodes": 2,
+          "interned_nodes_including_terminals": 5
+        }
+      },
+      {
+        "clauses": 2,
+        "interleaved": {
+          "reachable_decision_nodes": 4,
+          "interned_nodes_including_terminals": 10
+        },
+        "blocked": {
+          "reachable_decision_nodes": 6,
+          "interned_nodes_including_terminals": 11
+        }
+      },
+      {
+        "clauses": 3,
+        "interleaved": {
+          "reachable_decision_nodes": 6,
+          "interned_nodes_including_terminals": 17
+        },
+        "blocked": {
+          "reachable_decision_nodes": 14,
+          "interned_nodes_including_terminals": 23
+        }
+      },
+      {
+        "clauses": 4,
+        "interleaved": {
+          "reachable_decision_nodes": 8,
+          "interned_nodes_including_terminals": 26
+        },
+        "blocked": {
+          "reachable_decision_nodes": 30,
+          "interned_nodes_including_terminals": 47
+        }
+      },
+      {
+        "clauses": 5,
+        "interleaved": {
+          "reachable_decision_nodes": 10,
+          "interned_nodes_including_terminals": 37
+        },
+        "blocked": {
+          "reachable_decision_nodes": 62,
+          "interned_nodes_including_terminals": 95
+        }
+      },
+      {
+        "clauses": 6,
+        "interleaved": {
+          "reachable_decision_nodes": 12,
+          "interned_nodes_including_terminals": 50
+        },
+        "blocked": {
+          "reachable_decision_nodes": 126,
+          "interned_nodes_including_terminals": 191
+        }
+      },
+      {
+        "clauses": 7,
+        "interleaved": {
+          "reachable_decision_nodes": 14,
+          "interned_nodes_including_terminals": 65
+        },
+        "blocked": {
+          "reachable_decision_nodes": 254,
+          "interned_nodes_including_terminals": 383
+        }
+      },
+      {
+        "clauses": 8,
+        "interleaved": {
+          "reachable_decision_nodes": 16,
+          "interned_nodes_including_terminals": 82
+        },
+        "blocked": {
+          "reachable_decision_nodes": 510,
+          "interned_nodes_including_terminals": 767
+        }
+      },
+      {
+        "clauses": 9,
+        "interleaved": {
+          "reachable_decision_nodes": 18,
+          "interned_nodes_including_terminals": 101
+        },
+        "blocked": {
+          "reachable_decision_nodes": 1022,
+          "interned_nodes_including_terminals": 1535
+        }
+      },
+      {
+        "clauses": 10,
+        "interleaved": {
+          "reachable_decision_nodes": 20,
+          "interned_nodes_including_terminals": 122
+        },
+        "blocked": {
+          "reachable_decision_nodes": 2046,
+          "interned_nodes_including_terminals": 3071
+        }
+      },
+      {
+        "clauses": 11,
+        "interleaved": {
+          "reachable_decision_nodes": 22,
+          "interned_nodes_including_terminals": 145
+        },
+        "blocked": {
+          "reachable_decision_nodes": 4094,
+          "interned_nodes_including_terminals": 6143
+        }
+      }
+    ],
+    "random_independent_orders_truth_table_audits": 280,
+    "pigeonhole_order_experiments": [
+      {
+        "holes": 1,
+        "variables": 2,
+        "clauses": 3,
+        "bdd_order": "rows",
+        "elimination_order": "columns",
+        "seconds": 4.316500007917057e-05,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 2,
+        "interned_nodes_including_terminals": 8,
+        "uncached_apply_calls": 14
+      },
+      {
+        "holes": 1,
+        "variables": 2,
+        "clauses": 3,
+        "bdd_order": "rows",
+        "elimination_order": "rows",
+        "seconds": 2.648999998200452e-05,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 2,
+        "interned_nodes_including_terminals": 8,
+        "uncached_apply_calls": 14
+      },
+      {
+        "holes": 1,
+        "variables": 2,
+        "clauses": 3,
+        "bdd_order": "columns",
+        "elimination_order": "columns",
+        "seconds": 1.6625000057501893e-05,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 2,
+        "interned_nodes_including_terminals": 8,
+        "uncached_apply_calls": 14
+      },
+      {
+        "holes": 2,
+        "variables": 6,
+        "clauses": 9,
+        "bdd_order": "rows",
+        "elimination_order": "columns",
+        "seconds": 9.557400005633099e-05,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 6,
+        "interned_nodes_including_terminals": 42,
+        "uncached_apply_calls": 85
+      },
+      {
+        "holes": 2,
+        "variables": 6,
+        "clauses": 9,
+        "bdd_order": "rows",
+        "elimination_order": "rows",
+        "seconds": 8.689099990988325e-05,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 6,
+        "interned_nodes_including_terminals": 43,
+        "uncached_apply_calls": 91
+      },
+      {
+        "holes": 2,
+        "variables": 6,
+        "clauses": 9,
+        "bdd_order": "columns",
+        "elimination_order": "columns",
+        "seconds": 8.110200008104584e-05,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 6,
+        "interned_nodes_including_terminals": 39,
+        "uncached_apply_calls": 82
+      },
+      {
+        "holes": 3,
+        "variables": 12,
+        "clauses": 22,
+        "bdd_order": "rows",
+        "elimination_order": "columns",
+        "seconds": 0.00036795399989841826,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 17,
+        "interned_nodes_including_terminals": 164,
+        "uncached_apply_calls": 289
+      },
+      {
+        "holes": 3,
+        "variables": 12,
+        "clauses": 22,
+        "bdd_order": "rows",
+        "elimination_order": "rows",
+        "seconds": 0.0004986909999615818,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 38,
+        "interned_nodes_including_terminals": 178,
+        "uncached_apply_calls": 350
+      },
+      {
+        "holes": 3,
+        "variables": 12,
+        "clauses": 22,
+        "bdd_order": "columns",
+        "elimination_order": "columns",
+        "seconds": 0.0003622550000272895,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 30,
+        "interned_nodes_including_terminals": 149,
+        "uncached_apply_calls": 305
+      },
+      {
+        "holes": 4,
+        "variables": 20,
+        "clauses": 45,
+        "bdd_order": "rows",
+        "elimination_order": "columns",
+        "seconds": 0.0012689499999396503,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 36,
+        "interned_nodes_including_terminals": 474,
+        "uncached_apply_calls": 716
+      },
+      {
+        "holes": 4,
+        "variables": 20,
+        "clauses": 45,
+        "bdd_order": "rows",
+        "elimination_order": "rows",
+        "seconds": 0.0026197839999895223,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 187,
+        "interned_nodes_including_terminals": 641,
+        "uncached_apply_calls": 1254
+      },
+      {
+        "holes": 4,
+        "variables": 20,
+        "clauses": 45,
+        "bdd_order": "columns",
+        "elimination_order": "columns",
+        "seconds": 0.001593658999922809,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 133,
+        "interned_nodes_including_terminals": 547,
+        "uncached_apply_calls": 1121
+      },
+      {
+        "holes": 5,
+        "variables": 30,
+        "clauses": 81,
+        "bdd_order": "rows",
+        "elimination_order": "columns",
+        "seconds": 0.002287173000013354,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 68,
+        "interned_nodes_including_terminals": 1133,
+        "uncached_apply_calls": 1523
+      },
+      {
+        "holes": 5,
+        "variables": 30,
+        "clauses": 81,
+        "bdd_order": "rows",
+        "elimination_order": "rows",
+        "seconds": 0.00939005400005044,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 702,
+        "interned_nodes_including_terminals": 2272,
+        "uncached_apply_calls": 4711
+      },
+      {
+        "holes": 5,
+        "variables": 30,
+        "clauses": 81,
+        "bdd_order": "columns",
+        "elimination_order": "columns",
+        "seconds": 0.007492117999959191,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 505,
+        "interned_nodes_including_terminals": 2091,
+        "uncached_apply_calls": 4337
+      },
+      {
+        "holes": 6,
+        "variables": 42,
+        "clauses": 133,
+        "bdd_order": "rows",
+        "elimination_order": "columns",
+        "seconds": 0.005241479999995136,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 116,
+        "interned_nodes_including_terminals": 2377,
+        "uncached_apply_calls": 2918
+      },
+      {
+        "holes": 6,
+        "variables": 42,
+        "clauses": 133,
+        "bdd_order": "rows",
+        "elimination_order": "rows",
+        "seconds": 0.041671345999930054,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 2259,
+        "interned_nodes_including_terminals": 7962,
+        "uncached_apply_calls": 17634
+      },
+      {
+        "holes": 6,
+        "variables": 42,
+        "clauses": 133,
+        "bdd_order": "columns",
+        "elimination_order": "columns",
+        "seconds": 0.03326827799992316,
+        "status": "UNSAT",
+        "max_reachable_factor_nodes": 1684,
+        "interned_nodes_including_terminals": 7995,
+        "uncached_apply_calls": 16680
+      }
+    ],
+    "interpretation": "Finite implementations reproduce differing costs; Mengel's theorem supplies the asymptotic family result."
+  },
+  "total_seconds": 1.3334392360000038
+}

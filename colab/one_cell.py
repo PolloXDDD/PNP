@@ -22,6 +22,13 @@ class ResourceLimit(RuntimeError):
     pass
 
 
+def _integer(token: str) -> int:
+    digits = token[1:] if token[:1] in ('+', '-') else token
+    if not digits or any(c < '0' or c > '9' for c in digits):
+        raise ValueError('expected an ASCII decimal integer')
+    return int(token)
+
+
 @dataclass
 class CNF:
     nvars: int
@@ -30,6 +37,7 @@ class CNF:
 
 def parse_dimacs(text: str, max_vars: int = 1_000_000) -> CNF:
     """Strict DIMACS with multiline clauses, c comments and optional % end."""
+    text = text.removeprefix('\ufeff')
     nvars = declared = None
     clauses, pending = [], []
     for lineno, line in enumerate(text.splitlines(), 1):
@@ -43,7 +51,7 @@ def parse_dimacs(text: str, max_vars: int = 1_000_000) -> CNF:
             if nvars is not None or clauses or pending or len(parts) != 4 or parts[1] != 'cnf':
                 raise DimacsError(f'line {lineno}: invalid or repeated p cnf header')
             try:
-                nvars, declared = int(parts[2]), int(parts[3])
+                nvars, declared = _integer(parts[2]), _integer(parts[3])
             except ValueError as exc:
                 raise DimacsError(f'line {lineno}: noninteger header') from exc
             if nvars < 0 or declared < 0:
@@ -55,7 +63,7 @@ def parse_dimacs(text: str, max_vars: int = 1_000_000) -> CNF:
             raise DimacsError(f'line {lineno}: missing p cnf header')
         for token in parts:
             try:
-                lit = int(token)
+                lit = _integer(token)
             except ValueError as exc:
                 raise DimacsError(f'line {lineno}: invalid literal {token!r}') from exc
             if abs(lit) > nvars:

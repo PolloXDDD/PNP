@@ -69,3 +69,4 @@ theorem agreeOn_set_absent {s : List Nat} (a : Assignment) (i : Nat) (b : Bool)
   exact hi hj
 
 end PNP
+
